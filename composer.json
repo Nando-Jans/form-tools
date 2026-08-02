@@ -1,0 +1,20 @@
+{
+    "name": "nando-jans/form-tools",
+    "description": "Reusable read-only table form type for Symfony",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "NandoJans\\FormTools\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.5",
+        "symfony/form": "^7.4 || ^8.0",
+        "symfony/http-kernel": "^7.4 || ^8.0",
+        "symfony/options-resolver": "^7.4 || ^8.0",
+        "symfony/property-access": "^7.4 || ^8.0",
+        "symfony/routing": "^7.4 || ^8.0",
+        "symfony/twig-bundle": "^7.4 || ^8.0"
+    }
+}
