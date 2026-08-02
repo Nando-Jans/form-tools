@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "useDefineForClassFields": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "assets/src/**/*.ts"
+  ],
+  "scripts": {
+    "build": "npm run typecheck && babel src --extensions .ts --out-dir dist",
+    "typecheck": "tsc --noEmit",
+    "watch": "babel src --extensions .ts --out-dir dist --watch"
+  }
+}

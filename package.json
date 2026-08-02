@@ -1,0 +1,20 @@
+{
+  "name": "@nando-jans/form-tools",
+  "private": true,
+  "scripts": {
+    "build": "npm run typecheck && babel assets/src --config-file ./babel.config.cjs --extensions .ts --out-dir assets/dist",
+    "typecheck": "node_modules/.bin/tsc --noEmit",
+    "watch": "node_modules/.bin/babel assets/src --extensions .ts --out-dir assets/dist --watch"
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.27",
+    "@babel/core": "^7.27",
+    "@babel/preset-env": "^7.27",
+    "@babel/preset-typescript": "^7.27",
+    "@hotwired/stimulus": "^3.2",
+    "typescript": "^5.9"
+  }
+}
