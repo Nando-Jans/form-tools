@@ -24,10 +24,15 @@ final class NandoJansFormToolsBundle extends AbstractBundle
             return;
         }
 
+        $assetsDirectory = __DIR__.'/../assets/dist';
+        if (!is_dir($assetsDirectory)) {
+            return;
+        }
+
         $builder->prependExtensionConfig('framework', [
             'asset_mapper' => [
                 'paths' => [
-                    __DIR__.'/../assets/dist' => '@nando-jans/form-tools',
+                    $assetsDirectory => '@nando-jans/form-tools',
                 ],
             ],
         ]);

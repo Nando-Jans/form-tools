@@ -1,4 +1,6 @@
 vendor
 node_modules
 .idea
-assets/dist
+# Compiled browser assets are distributed with the Composer package.
+!assets/dist/
+!assets/dist/**

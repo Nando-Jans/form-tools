@@ -1,6 +1,19 @@
 {
   "name": "@nando-jans/form-tools",
+  "version": "1.0.0",
   "private": true,
+  "symfony": {
+    "controllers": {
+      "table": {
+        "main": "assets/dist/table_controller.js",
+        "fetch": "lazy",
+        "enabled": true
+      }
+    },
+    "importmap": {
+      "@hotwired/stimulus": "^3.2"
+    }
+  },
   "scripts": {
     "build": "npm run typecheck && babel assets/src --config-file ./babel.config.cjs --extensions .ts --out-dir assets/dist",
     "typecheck": "node_modules/.bin/tsc --noEmit",
