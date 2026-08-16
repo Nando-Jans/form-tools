@@ -9,4 +9,13 @@
 
 {% block nandojans_table_widget %}
     {% include template %}
+    {% if add_button %}
+        <a class="{{ add_button.class }}" href="{{ add_button.href }}">
+            {% if add_button.icon %}
+                <i class="{{ add_button.icon }}"></i>
+            {% endif %}
+            {{ add_button.label }}
+        </a>
+    {% endif %}
+
 {% endblock %}

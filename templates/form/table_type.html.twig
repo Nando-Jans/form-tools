@@ -6,10 +6,12 @@
             {{ stimulus_controller('@nando-jans/form-tools/table') }}
             data-click-url="{{ click_url }}"
     >
-        <thead>
+        <thead class="thead-light">
+            <tr>
             {% for col in cols %}
-                <td>{{ col }}</td>
+                <th scope="col">{{ col }}</th>
             {% endfor %}
+            </tr>
         </thead>
         <tbody>
             {% for row in rows %}
@@ -31,12 +33,4 @@
             {% endfor %}
         </tbody>
     </table>
-{% endif %}
-{% if add_button %}
-    <a class="{{ add_button.class }}" href="{{ add_button.href }}">
-        {% if add_button.icon %}
-            <i class="{{ add_button.icon }}"></i>
-        {% endif %}
-        {{ add_button.label }}
-    </a>
 {% endif %}
