@@ -22,6 +22,8 @@ class TableType extends AbstractType
             'add_button' => false,
             'click_url' => '',
             'tr_class' => '',
+            'template' => '@NandoJans/templates/form/table_type.html.twig',
+
         ]);
 
         $resolver->setRequired([]);
@@ -55,6 +57,7 @@ class TableType extends AbstractType
         $view->vars['empty_message'] = $options['empty_message'];
         $view->vars['click_url'] = $options['click_url'];
         $view->vars['add_button'] = $options['add_button'];
+        $view->vars['template'] = $options['template'];
     }
 
     public function getBlockPrefix(): string

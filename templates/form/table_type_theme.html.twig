@@ -8,46 +8,5 @@
 {% endblock %}
 
 {% block nandojans_table_widget %}
-    {% if rows is empty %}
-        <p class="text-muted">{{ empty_message }}</p>
-    {% else %}
-        <table
-                class="table table-striped table-hover w-100"
-                {{ stimulus_controller('@nando-jans/form-tools/table') }}
-                data-click-url="{{ click_url }}"
-        >
-            <thead>
-                {% for col in cols %}
-                    <td>{{ col }}</td>
-                {% endfor %}
-            </thead>
-            <tbody>
-                {% for row in rows %}
-                    <tr
-                            class="{{ tr_class }}"
-                            data-id="{{ row.id }}"
-                            {{ stimulus_action(
-                                '@nando-jans/form-tools/table',
-                                'onClickTr',
-                                'click'
-                            ) }}
-                    >
-                        {% for col in colKeys %}
-                            <td>
-                                {{ row[col] }}
-                            </td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-    {% if add_button %}
-        <a class="{{ add_button.class }}" href="{{ add_button.href }}">
-            {% if add_button.icon %}
-                <i class="{{ add_button.icon }}"></i>
-            {% endif %}
-            {{ add_button.label }}
-        </a>
-    {% endif %}
+    {% include template %}
 {% endblock %}
