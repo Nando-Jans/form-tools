@@ -7,19 +7,33 @@ export default class extends Controller {
   constructor() {
     super(...arguments);
     _defineProperty(this, "commands", []);
+    _defineProperty(this, "redoCommands", []);
   }
   registerFormStateEvent(event) {
     this.commands.push(event);
     FormTools.showToast(event.detail.title, "<button onclick=\"window.dispatchEvent(new CustomEvent('form-tools:form:undo'))\" data-bs-dismiss=\"toast\" class='btn btn-link'>Deze actie terugdraaien</button>");
     FormTools.setActionBarUndoButtonEnabled(true);
+    this.redoCommands = [];
+    FormTools.setActionBarRedoButtonEnabled(false);
   }
   undo() {
     var event = this.commands.pop();
-    if (event) {
-      event === null || event === void 0 || event.detail.command.undo(event.detail.type, event.detail.action);
+    if (!event) {
+      return;
     }
-    if (!this.commands.length) {
-      FormTools.setActionBarUndoButtonEnabled(false);
+    event.detail.command.undo(event.detail.type, event.detail.oldState);
+    this.redoCommands.push(event);
+    FormTools.setActionBarUndoButtonEnabled(this.commands.length > 0);
+    FormTools.setActionBarRedoButtonEnabled(true);
+  }
+  redo() {
+    var event = this.redoCommands.pop();
+    if (!event) {
+      return;
     }
+    event.detail.command.redo(event.detail.type, event.detail.newState);
+    this.commands.push(event);
+    FormTools.setActionBarRedoButtonEnabled(this.redoCommands.length > 0);
+    FormTools.setActionBarUndoButtonEnabled(true);
   }
 }

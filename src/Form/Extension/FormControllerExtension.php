@@ -34,6 +34,7 @@ class FormControllerExtension extends AbstractTypeExtension
             '
              form-tools:form:register@window->nando-jans--form-tools--form#registerFormStateEvent
              form-tools:form:undo@window->nando-jans--form-tools--form#undo
+             form-tools:form:redo@window->nando-jans--form-tools--form#redo
             '
         );
     }

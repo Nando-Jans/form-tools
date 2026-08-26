@@ -1,8 +1,11 @@
 <div
-    class="action-bar card z-3 position-fixed bottom-0 start-50 m-3 p-2"
+    class="action-bar card z-3 position-fixed bottom-0 start-50 m-3 p-2 d-flex justify-content-center flex-row"
     {{ attributes.defaults({
         'data-controller': 'nando-jans--form-tools--action-bar',
-        'data-action': 'form-tools:action-bar:undo-button-enabled@window->nando-jans--form-tools--action-bar#undoButtonEnabled'
+        'data-action': '
+            form-tools:action-bar:undo-button-enabled@window->nando-jans--form-tools--action-bar#undoButtonEnabled
+            form-tools:action-bar:redo-button-enabled@window->nando-jans--form-tools--action-bar#redoButtonEnabled
+'
     }) }}
 >
     <button
@@ -12,6 +15,15 @@
             class="btn-app btn-app-icon"
             disabled
     >
-        <i class="fa fa-undo"></i>
+        <i class="fa fa-undo text-primary"></i>
+    </button>
+    <button
+            type="button"
+            data-target="nando-jans--form-tools--action-bar.redoButton"
+            data-action="click->nando-jans--form-tools--action-bar#redo"
+            class="btn-app btn-app-icon"
+            disabled
+    >
+        <i class="fa fa-redo text-primary"></i>
     </button>
 </div>

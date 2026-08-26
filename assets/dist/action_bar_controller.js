@@ -7,8 +7,14 @@ export default class _Class extends Controller {
   undo() {
     FormTools.formUndo();
   }
+  redo() {
+    FormTools.formRedo();
+  }
   undoButtonEnabled(event) {
     this.undoButtonTarget.disabled = !event.detail.enabled;
   }
+  redoButtonEnabled(event) {
+    this.redoButtonTarget.disabled = !event.detail.enabled;
+  }
 }
-_defineProperty(_Class, "targets", ["undoButton"]);
+_defineProperty(_Class, "targets", ["undoButton", "redoButton"]);
