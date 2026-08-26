@@ -6,9 +6,17 @@ use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\HttpKernel\Config\FileLocator;
+use Symfony\Component\Routing\Loader\YamlFileLoader;
 
 final class NandoJansFormToolsBundle extends AbstractBundle
 {
+
+    public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
+    {
+        $configurator->import('../config/services.yaml');
+    }
+
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         if (!interface_exists(AssetMapperInterface::class)) {
@@ -34,6 +42,12 @@ final class NandoJansFormToolsBundle extends AbstractBundle
                 'paths' => [
                     $assetsDirectory => '@nando-jans/form-tools',
                 ],
+            ],
+        ]);
+
+        $builder->prependExtensionConfig('twig', [
+            'paths' => [
+                dirname(__DIR__).'/templates' => 'FormTools',
             ],
         ]);
     }

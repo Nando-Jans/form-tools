@@ -1,0 +1,22 @@
+<div
+    class="toast-container position-fixed bottom-0 end-0 p-3"
+    {{ attributes.defaults({
+        'data-controller': 'nando-jans--form-tools--toaster',
+        'data-action': 'form-tools:toast@window->nando-jans--form-tools--toaster#show'
+    }) }}
+>
+    <template data-nando-jans--form-tools--toaster-target="toast" class="toast-template ">
+        <div class="toast">
+            <div class="toast-header d-flex justify-content-between flex-row">
+                <div class="d-flex justify-content-start flex-row align-items-center">
+                    <i class="fa fa-info-circle text-primary"></i>
+                    <strong class="toast-title"></strong>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+
+            </div>
+        </div>
+    </template>
+</div>

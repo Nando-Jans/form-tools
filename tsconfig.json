@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "noEmit": true,
+    "rootDir": "assets/src",
     "useDefineForClassFields": true,
     "skipLibCheck": true
   },
