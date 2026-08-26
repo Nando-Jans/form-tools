@@ -14,13 +14,18 @@ export default class extends Controller<HTMLFormElement> {
             event.detail.title,
             `<button onclick="window.dispatchEvent(new CustomEvent('form-tools:form:undo'))" data-bs-dismiss="toast" class='btn btn-link'>Deze actie terugdraaien</button>`
         );
-        console.log(this.commands);
+
+        FormTools.setActionBarUndoButtonEnabled(true);
     }
 
     undo() {
         const event = this.commands.pop();
         if (event) {
             event?.detail.command.undo(event.detail.type, event.detail.action);
+        }
+
+        if (!this.commands.length) {
+            FormTools.setActionBarUndoButtonEnabled(false);
         }
     }
 }

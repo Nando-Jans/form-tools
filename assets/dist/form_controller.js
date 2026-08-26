@@ -11,12 +11,15 @@ export default class extends Controller {
   registerFormStateEvent(event) {
     this.commands.push(event);
     FormTools.showToast(event.detail.title, "<button onclick=\"window.dispatchEvent(new CustomEvent('form-tools:form:undo'))\" data-bs-dismiss=\"toast\" class='btn btn-link'>Deze actie terugdraaien</button>");
-    console.log(this.commands);
+    FormTools.setActionBarUndoButtonEnabled(true);
   }
   undo() {
     var event = this.commands.pop();
     if (event) {
       event === null || event === void 0 || event.detail.command.undo(event.detail.type, event.detail.action);
+    }
+    if (!this.commands.length) {
+      FormTools.setActionBarUndoButtonEnabled(false);
     }
   }
 }

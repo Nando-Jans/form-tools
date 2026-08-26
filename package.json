@@ -29,6 +29,7 @@
     "./assets/dist/table_controller.js": "./assets/dist/table_controller.js",
     "./assets/dist/form_controller.js": "./assets/dist/form_controller.js",
     "./assets/dist/toaster_controller.js": "./assets/dist/toaster_controller.js",
+    "./assets/dist/action_bar_controller.js": "./assets/dist/action_bar_controller.js",
     "./contract/*": {
       "types": "./assets/dist/contract/*.d.ts",
       "default": "./assets/dist/contract/*.js"

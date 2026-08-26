@@ -7,6 +7,7 @@ export default class extends Controller {
   constructor() {
     super(...arguments);
     _defineProperty(this, "toastTemplate", void 0);
+    _defineProperty(this, "activeToast", null);
   }
   connect() {
     this.toastTemplate = this.element.querySelector('.toast-template');
@@ -15,6 +16,9 @@ export default class extends Controller {
     var _event$detail = event.detail,
       title = _event$detail.title,
       body = _event$detail.body;
+    if (this.activeToast) {
+      Toast.getOrCreateInstance(this.activeToast).hide();
+    }
     var fragment = this.toastTemplate.content.cloneNode(true);
     var toast = fragment.querySelector('.toast');
     if (!toast) {
@@ -23,6 +27,19 @@ export default class extends Controller {
     toast.querySelector('.toast-title').textContent = title;
     toast.querySelector('.toast-body').innerHTML = body;
     this.element.appendChild(fragment);
+    this.activeToast = toast;
+    toast.addEventListener('hidden.bs.toast', () => {
+      if (this.activeToast === toast) {
+        this.activeToast = null;
+      }
+      window.setTimeout(() => {
+        var _Toast$getInstance;
+        (_Toast$getInstance = Toast.getInstance(toast)) === null || _Toast$getInstance === void 0 || _Toast$getInstance.dispose();
+        toast.remove();
+      }, 0);
+    }, {
+      once: true
+    });
     var toastBootstrap = Toast.getOrCreateInstance(toast);
     toastBootstrap.show();
   }

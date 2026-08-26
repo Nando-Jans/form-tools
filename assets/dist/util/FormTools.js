@@ -20,4 +20,11 @@ export class FormTools {
   static formUndo() {
     window.dispatchEvent(new CustomEvent('form-tools:form:undo'));
   }
+  static setActionBarUndoButtonEnabled(enabled) {
+    window.dispatchEvent(new CustomEvent('form-tools:action-bar:undo-button-enabled', {
+      detail: {
+        enabled
+      }
+    }));
+  }
 }
