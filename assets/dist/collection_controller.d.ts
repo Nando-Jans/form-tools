@@ -9,6 +9,10 @@ export default class CollectionController extends Controller<HTMLElement> {
         prototypes: ObjectConstructor;
         positionField: StringConstructor;
         confirmDelete: StringConstructor;
+        autosaveDelay: {
+            type: NumberConstructor;
+            default: number;
+        };
     };
     readonly itemsTarget: HTMLElement;
     readonly emptyTarget: HTMLElement;
@@ -17,8 +21,11 @@ export default class CollectionController extends Controller<HTMLElement> {
     prototypesValue: Record<string, string>;
     positionFieldValue: string;
     confirmDeleteValue: string;
+    autosaveDelayValue: number;
     private scrollSpeed;
     private scrollAnimationFrame;
+    private autosaveTimers;
+    private autosaveRequests;
     connect(): void;
     disconnect(): void;
     add(event: Event): void;
@@ -31,6 +38,14 @@ export default class CollectionController extends Controller<HTMLElement> {
     private updateAutoScroll;
     private autoScroll;
     private stopAutoScroll;
+    private detectChange;
+    private scheduleAutosave;
+    private saveItem;
+    private createItemFormData;
+    private resolveAutosaveUrl;
+    private relativeFieldName;
+    private setAutosaveStatus;
+    private clearItemAutosave;
     private itemForEvent;
     private items;
     private updateOrder;

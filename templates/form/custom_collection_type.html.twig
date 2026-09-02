@@ -2,7 +2,9 @@
     {% set item_template = '@NandoJansFormTools/form/_custom_collection_item.html.twig' %}
     {% set item_template_context = {
         editable_order: editable_order,
-        allow_delete: allow_delete
+        allow_delete: allow_delete,
+        autosave_url: autosave_url,
+        autosave_method: autosave_method
     } %}
     {% set prototype_html = prototype is defined and prototype
         ? include(item_template, item_template_context|merge({item_form: prototype}), with_context = false)
@@ -21,7 +23,8 @@
         prototype: prototype_html,
         prototypes: polymorphic_prototypes,
         positionField: position_field ?? '',
-        confirmDelete: confirm_delete
+        confirmDelete: confirm_delete,
+        autosaveDelay: autosave_delay
     }) }} class="custom-collection">
         <div class="custom-collection__items d-flex flex-column gap-3" data-nando-jans--form-tools--collection-target="items">
             {% for child in form %}

@@ -11,6 +11,7 @@ export default class CollectionController extends Controller<HTMLElement> {
         prototypes: Object,
         positionField: String,
         confirmDelete: String,
+        autosaveDelay: { type: Number, default: 1000 },
     };
 
     declare readonly itemsTarget: HTMLElement;
@@ -20,13 +21,18 @@ export default class CollectionController extends Controller<HTMLElement> {
     declare prototypesValue: Record<string, string>;
     declare positionFieldValue: string;
     declare confirmDeleteValue: string;
+    declare autosaveDelayValue: number;
 
     private scrollSpeed = 0;
     private scrollAnimationFrame: number | null = null;
+    private autosaveTimers = new Map<HTMLElement, number>();
+    private autosaveRequests = new Map<HTMLElement, AbortController>();
 
     connect(): void {
         this.itemsTarget.addEventListener('dragover', this.dragOver);
         this.itemsTarget.addEventListener('drop', this.drop);
+        this.itemsTarget.addEventListener('input', this.detectChange);
+        this.itemsTarget.addEventListener('change', this.detectChange);
         window.addEventListener('dragover', this.updateAutoScroll);
         this.items().forEach((item) => this.prepareItem(item));
         this.updateOrder();
@@ -35,7 +41,13 @@ export default class CollectionController extends Controller<HTMLElement> {
     disconnect(): void {
         this.itemsTarget.removeEventListener('dragover', this.dragOver);
         this.itemsTarget.removeEventListener('drop', this.drop);
+        this.itemsTarget.removeEventListener('input', this.detectChange);
+        this.itemsTarget.removeEventListener('change', this.detectChange);
         window.removeEventListener('dragover', this.updateAutoScroll);
+        this.autosaveTimers.forEach((timer) => window.clearTimeout(timer));
+        this.autosaveRequests.forEach((request) => request.abort());
+        this.autosaveTimers.clear();
+        this.autosaveRequests.clear();
         this.stopAutoScroll();
     }
 
@@ -56,7 +68,9 @@ export default class CollectionController extends Controller<HTMLElement> {
     remove(event: Event): void {
         event.preventDefault();
         if (this.confirmDeleteValue && !window.confirm(this.confirmDeleteValue)) return;
-        this.itemForEvent(event)?.remove();
+        const item = this.itemForEvent(event);
+        if (item) this.clearItemAutosave(item);
+        item?.remove();
         this.updateOrder();
     }
 
@@ -64,14 +78,14 @@ export default class CollectionController extends Controller<HTMLElement> {
         event.preventDefault();
         const item = this.itemForEvent(event);
         if (item?.previousElementSibling) this.itemsTarget.insertBefore(item, item.previousElementSibling);
-        this.updateOrder();
+        this.updateOrder(true);
     }
 
     moveDown(event: Event): void {
         event.preventDefault();
         const item = this.itemForEvent(event);
         if (item?.nextElementSibling) this.itemsTarget.insertBefore(item.nextElementSibling, item);
-        this.updateOrder();
+        this.updateOrder(true);
     }
 
     private prepareItem(item: HTMLElement): void {
@@ -93,7 +107,7 @@ export default class CollectionController extends Controller<HTMLElement> {
             item.classList.remove('opacity-50');
             delete item.dataset.dragging;
             this.stopAutoScroll();
-            this.updateOrder();
+            this.updateOrder(true);
         });
     }
 
@@ -106,7 +120,7 @@ export default class CollectionController extends Controller<HTMLElement> {
         this.itemsTarget.insertBefore(dragged, before ? target : target.nextElementSibling);
     };
 
-    private drop = (event: DragEvent): void => { event.preventDefault(); this.updateOrder(); };
+    private drop = (event: DragEvent): void => { event.preventDefault(); this.updateOrder(true); };
 
     private updateAutoScroll = (event: DragEvent): void => {
         if (!this.itemsTarget.querySelector('[data-dragging="true"]')) {
@@ -149,6 +163,125 @@ export default class CollectionController extends Controller<HTMLElement> {
         }
     }
 
+    private detectChange = (event: Event): void => {
+        const item = (event.target as HTMLElement).closest<HTMLElement>('.custom-collection__item');
+        if (item) this.scheduleAutosave(item);
+    };
+
+    private scheduleAutosave(item: HTMLElement): void {
+        if (!item.dataset.autosaveUrl) return;
+
+        const existingTimer = this.autosaveTimers.get(item);
+        if (existingTimer !== undefined) window.clearTimeout(existingTimer);
+        this.setAutosaveStatus(item, 'pending', 'Changes detected…');
+
+        const timer = window.setTimeout(() => {
+            this.autosaveTimers.delete(item);
+            void this.saveItem(item);
+        }, this.autosaveDelayValue);
+        this.autosaveTimers.set(item, timer);
+    }
+
+    private async saveItem(item: HTMLElement): Promise<void> {
+        const url = this.resolveAutosaveUrl(item);
+        if (!url || !item.isConnected) return;
+
+        this.autosaveRequests.get(item)?.abort();
+        const request = new AbortController();
+        this.autosaveRequests.set(item, request);
+        this.setAutosaveStatus(item, 'saving', 'Saving…');
+        this.dispatch('autosave:start', { detail: { item, url } });
+
+        try {
+            const response = await fetch(url, {
+                method: item.dataset.autosaveMethod || 'POST',
+                body: this.createItemFormData(item),
+                signal: request.signal,
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            if (!response.ok) throw new Error(`Autosave failed with status ${response.status}.`);
+
+            const result = response.headers.get('content-type')?.includes('application/json')
+                ? await response.json() as { id?: string | number, autosave_url?: string }
+                : null;
+            if (result?.id !== undefined) item.dataset.autosaveId = String(result.id);
+            if (result?.autosave_url) item.dataset.autosaveUrl = result.autosave_url;
+
+            this.setAutosaveStatus(item, 'saved', 'Saved');
+            this.dispatch('autosave:success', { detail: { item, response, result } });
+        } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') return;
+            this.setAutosaveStatus(item, 'error', 'Could not save');
+            this.dispatch('autosave:error', { detail: { item, error } });
+        } finally {
+            if (this.autosaveRequests.get(item) === request) this.autosaveRequests.delete(item);
+        }
+    }
+
+    private createItemFormData(item: HTMLElement): FormData {
+        const data = new FormData();
+        const prefix = item.dataset.autosavePrefix || '';
+        item.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea').forEach((control) => {
+            if (!control.name || control.disabled) return;
+            const name = this.relativeFieldName(control.name, prefix);
+            if (control instanceof HTMLInputElement && ['checkbox', 'radio'].includes(control.type) && !control.checked) return;
+            if (control instanceof HTMLInputElement && control.type === 'file') {
+                Array.from(control.files ?? []).forEach((file) => data.append(name, file));
+                return;
+            }
+            if (control instanceof HTMLSelectElement && control.multiple) {
+                Array.from(control.selectedOptions).forEach((option) => data.append(name, option.value));
+                return;
+            }
+            data.append(name, control.value);
+        });
+        return data;
+    }
+
+    private resolveAutosaveUrl(item: HTMLElement): string | null {
+        const url = item.dataset.autosaveUrl;
+        if (!url) return null;
+        if (!url.includes('__ID__')) return url;
+
+        const id = item.dataset.autosaveId;
+        if (!id) {
+            this.setAutosaveStatus(item, 'error', 'Could not save');
+            this.dispatch('autosave:error', {
+                detail: { item, error: new Error('The autosave URL requires an item id.') },
+            });
+            return null;
+        }
+
+        return url.replaceAll('__ID__', encodeURIComponent(id));
+    }
+
+    private relativeFieldName(name: string, prefix: string): string {
+        if (!prefix || !name.startsWith(`${prefix}[`)) return name;
+        const segments = Array.from(
+            name.slice(prefix.length).matchAll(/\[([^\]]*)\]/g),
+            (match) => match[1],
+        );
+        if (segments.length === 0) return name;
+        return segments[0] + segments.slice(1).map((segment) => `[${segment}]`).join('');
+    }
+
+    private setAutosaveStatus(item: HTMLElement, state: string, message: string): void {
+        item.dataset.autosaveState = state;
+        const status = item.querySelector<HTMLElement>('.custom-collection__autosave-status');
+        if (status) status.textContent = message;
+    }
+
+    private clearItemAutosave(item: HTMLElement): void {
+        const timer = this.autosaveTimers.get(item);
+        if (timer !== undefined) window.clearTimeout(timer);
+        this.autosaveTimers.delete(item);
+        this.autosaveRequests.get(item)?.abort();
+        this.autosaveRequests.delete(item);
+    }
+
     private itemForEvent(event: Event): HTMLElement | null {
         return (event.currentTarget as HTMLElement).closest('.custom-collection__item');
     }
@@ -157,14 +290,17 @@ export default class CollectionController extends Controller<HTMLElement> {
         return Array.from(this.itemsTarget.querySelectorAll<HTMLElement>(':scope > .custom-collection__item'));
     }
 
-    private updateOrder(): void {
+    private updateOrder(autosaveChangedPositions = false): void {
         const items = this.items();
         items.forEach((item, index) => {
             const number = item.querySelector<HTMLElement>('.custom-collection__number');
             if (number) number.textContent = `#${index + 1}`;
             if (this.positionFieldValue) {
                 const input = item.querySelector<HTMLInputElement>(`[name$="[${CSS.escape(this.positionFieldValue)}]"]`);
-                if (input) input.value = String(index);
+                if (input && input.value !== String(index)) {
+                    input.value = String(index);
+                    if (autosaveChangedPositions) this.scheduleAutosave(item);
+                }
             }
         });
         this.emptyTarget.classList.toggle('d-none', items.length > 0);

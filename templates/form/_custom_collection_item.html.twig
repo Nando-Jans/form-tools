@@ -1,11 +1,21 @@
 {% set item_options = item_form.vars.collection_options|default([]) %}
+{% set item_autosave_url = item_options.autosave_url|default(autosave_url) %}
+{% set item_autosave_method = item_options.autosave_method|default(autosave_method) %}
 <section
-        class="custom-collection__item card {{ item_options.row_class|default('') }}">
+    class="custom-collection__item card {{ item_options.row_class|default('') }}"
+    {% if item_autosave_url %}
+        data-autosave-url="{{ item_autosave_url }}"
+        data-autosave-method="{{ item_autosave_method }}"
+        data-autosave-prefix="{{ item_form.vars.full_name }}"
+        {% if item_options.id|default(null) is not null %}data-autosave-id="{{ item_options.id }}"{% endif %}
+    {% endif %}
+>
     <header class="card-header d-flex align-items-center gap-2">
         {% if editable_order %}
             <button type="button" class="btn-app btn-sm btn-app-icon movable" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">&#x2630;</button>
         {% endif %}
         <span class="custom-collection__number flex-grow-1" data-nando-jans--form-tools--collection-target="number"></span>
+        <span class="custom-collection__autosave-status small text-body-secondary" aria-live="polite"></span>
         {% if editable_order %}
             <button type="button" class="btn-app btn-sm btn-app-icon" title="Move up" aria-label="Move up" data-action="nando-jans--form-tools--collection#moveUp">
                 <i class="fa fa-arrow-up"></i>

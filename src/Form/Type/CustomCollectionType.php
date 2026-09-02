@@ -32,6 +32,9 @@ class CustomCollectionType extends AbstractType
             'empty_message' => 'No items have been added yet.',
             'confirm_delete' => 'Are you sure you want to remove this item?',
             'get_child_options' => fn () => [],
+            'autosave_url' => null,
+            'autosave_method' => 'POST',
+            'autosave_delay' => 1000,
         ]);
 
         $resolver->setAllowedTypes('polymorphic', 'bool');
@@ -41,6 +44,10 @@ class CustomCollectionType extends AbstractType
         $resolver->setAllowedTypes('empty_message', 'string');
         $resolver->setAllowedTypes('confirm_delete', 'string');
         $resolver->setAllowedTypes('get_child_options', 'callable');
+        $resolver->setAllowedTypes('autosave_url', ['string', 'null']);
+        $resolver->setAllowedTypes('autosave_method', 'string');
+        $resolver->setAllowedTypes('autosave_delay', 'int');
+        $resolver->setAllowedValues('autosave_delay', static fn (int $delay): bool => $delay >= 0);
         $resolver->setNormalizer('prototype', static fn(Options $options, bool $prototype): bool => $options['polymorphic'] ? false : $prototype);
     }
 
@@ -102,7 +109,10 @@ class CustomCollectionType extends AbstractType
              'add_button_label',
              'empty_message',
              'confirm_delete',
-             'polymorphic'
+             'polymorphic',
+             'autosave_url',
+             'autosave_method',
+             'autosave_delay',
          ] as $option) {
             $view->vars[$option] = $options[$option];
         }
@@ -139,6 +149,14 @@ class CustomCollectionType extends AbstractType
 
         if (!is_array($collectionOptions)) {
             throw new \UnexpectedValueException('The "get_child_options" callback must return an array.');
+        }
+
+        if (
+            $data !== null
+            && method_exists($data, 'getId')
+            && !array_key_exists('id', $collectionOptions)
+        ) {
+            $collectionOptions['id'] = $data->getId();
         }
 
         $view->vars['collection_options'] = $collectionOptions;
