@@ -49,6 +49,9 @@ final class NandoJansFormToolsBundle extends AbstractBundle
             'paths' => [
                 dirname(__DIR__).'/templates' => 'FormTools',
             ],
+            'form_themes' => [
+                '@NandoJansFormTools/form/form_theme.html.twig',
+            ],
         ]);
     }
 }

@@ -1,0 +1,24 @@
+{% set item_options = item_form.vars.collection_options|default([]) %}
+<section
+        class="custom-collection__item card {{ item_options.row_class|default('') }}">
+    <header class="card-header d-flex align-items-center gap-2">
+        {% if editable_order %}
+            <button type="button" class="btn-app btn-sm btn-app-icon movable" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">&#x2630;</button>
+        {% endif %}
+        <span class="custom-collection__number flex-grow-1" data-nando-jans--form-tools--collection-target="number"></span>
+        {% if editable_order %}
+            <button type="button" class="btn-app btn-sm btn-app-icon" title="Move up" aria-label="Move up" data-action="nando-jans--form-tools--collection#moveUp">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <button type="button" class="btn-app btn-sm btn-app-icon" title="Move down" aria-label="Move down" data-action="nando-jans--form-tools--collection#moveDown">
+                <i class="fa fa-arrow-down"></i>
+            </button>
+        {% endif %}
+        {% if allow_delete %}
+            <button type="button" class="btn-app btn-sm btn-app-icon text-danger" data-action="nando-jans--form-tools--collection#remove">
+                <i class="fa fa-trash"></i>
+            </button>
+        {% endif %}
+    </header>
+    <div class="card-body" data-nando-jans--form-tools--collection-target="body">{{ form_widget(item_form) }}</div>
+</section>

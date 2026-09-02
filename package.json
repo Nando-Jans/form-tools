@@ -14,8 +14,18 @@
         "fetch": "lazy",
         "enabled": true
       },
+      "collection": {
+        "main": "assets/dist/collection_controller.js",
+        "fetch": "lazy",
+        "enabled": true
+      },
       "toaster": {
         "main": "assets/dist/toaster_controller.js",
+        "fetch": "lazy",
+        "enabled": true
+      },
+      "icon-check-type": {
+        "main": "assets/dist/icon_check_type_controller.js",
         "fetch": "lazy",
         "enabled": true
       }
@@ -28,7 +38,9 @@
     "./package.json": "./package.json",
     "./assets/dist/table_controller.js": "./assets/dist/table_controller.js",
     "./assets/dist/form_controller.js": "./assets/dist/form_controller.js",
+    "./assets/dist/collection_controller.js": "./assets/dist/collection_controller.js",
     "./assets/dist/toaster_controller.js": "./assets/dist/toaster_controller.js",
+    "./assets/dist/icon_check_type_controller.js": "./assets/dist/icon_check_type_controller.js",
     "./assets/dist/action_bar_controller.js": "./assets/dist/action_bar_controller.js",
     "./contract/*": {
       "types": "./assets/dist/contract/*.d.ts",

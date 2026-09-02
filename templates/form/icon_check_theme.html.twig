@@ -1,0 +1,15 @@
+{% block icon_check_widget %}
+    <div class="input-check-type-wrapper">
+        {% set targetView = form.parent.children[target] is defined ? attribute(form.parent.children, target) : target %}
+        <input type="checkbox" autocomplete="off" value="{{ value }}"
+            {% if checked %}checked{% endif %}
+            {{ block('widget_attributes') }}
+            data-target-element="{{ targetView.vars.id|default(targetView) }}"
+            data-unchecked-value="0"
+        >
+        <label data-bs-toggle="tooltip" class="btn-app btn-app-icon icon-check-type" for="{{ id }}" title="{{ label }}">
+            <i class="fa {{ icon }}" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ label }}</span>
+        </label>
+    </div>
+{% endblock %}

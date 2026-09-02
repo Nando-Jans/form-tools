@@ -1,0 +1,47 @@
+{% block custom_collection_widget %}
+    {% set item_template = '@NandoJansFormTools/form/_custom_collection_item.html.twig' %}
+    {% set item_template_context = {
+        editable_order: editable_order,
+        allow_delete: allow_delete
+    } %}
+    {% set prototype_html = prototype is defined and prototype
+        ? include(item_template, item_template_context|merge({item_form: prototype}), with_context = false)
+        : ''
+    %}
+    {% set polymorphic_prototypes = {} %}
+    {% if polymorphic %}
+        {% for type, item_prototype in prototypes %}
+            {% set polymorphic_prototypes = polymorphic_prototypes|merge({
+                (type): include(item_template, item_template_context|merge({item_form: item_prototype}), with_context = false)
+            }) %}
+        {% endfor %}
+    {% endif %}
+    <div {{ stimulus_controller('nando-jans--form-tools--collection', {
+        index: form|length,
+        prototype: prototype_html,
+        prototypes: polymorphic_prototypes,
+        positionField: position_field ?? '',
+        confirmDelete: confirm_delete
+    }) }} class="custom-collection">
+        <div class="custom-collection__items d-flex flex-column gap-3" data-nando-jans--form-tools--collection-target="items">
+            {% for child in form %}
+                {{ include(item_template, item_template_context|merge({item_form: child}), with_context = false) }}
+            {% endfor %}
+        </div>
+        <p class="text-body-secondary my-3" data-nando-jans--form-tools--collection-target="empty">{{ empty_message }}</p>
+        {% if allow_add %}
+            {% if polymorphic %}
+                <div class="dropdown mt-3">
+                    <button class="btn-app btn-app-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ add_button_label }}</button>
+                    <ul class="dropdown-menu">
+                        {% for type in prototypes|keys %}
+                            <li><button class="dropdown-item {{ type }}" type="button" data-collection-type="{{ type }}" data-action="nando-jans--form-tools--collection#add">{{ type|replace({'_': ' '})|title }}</button></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <button class="btn btn-primary mt-3" type="button" data-action="nando-jans--form-tools--collection#add">{{ add_button_label }}</button>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
