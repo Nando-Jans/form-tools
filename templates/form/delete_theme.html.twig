@@ -1,0 +1,14 @@
+{% block delete_widget %}
+<form class="mt-3" method="post" action="{{ path(path_name, {id: id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ id) }}">
+    <button
+            class="btn-app btn-app-danger"
+            onclick="return confirm('{{ confirm_message }}');"
+    >
+        {% if icon %}
+        <i class="{{ icon }}"></i>
+        {% endif %}
+        {{ label }}
+    </button>
+</form>
+{% endblock %}

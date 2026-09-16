@@ -1,0 +1,37 @@
+{% extends flow_layout %}
+
+{% block title %}{{ flow_title|trans }}{% endblock %}
+
+{% block body %}
+    <div class="m-2">
+        <h2>{{ flow_title|trans }}</h2>
+        {% if flow_flash_template is defined %}
+            {% include flow_flash_template %}
+        {% endif %}
+        {% if flow_help is defined %}<p>{{ flow_help|trans }}</p>{% endif %}
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {% for step in form.vars.visible_steps %}
+            {% if step.is_current_step %}
+                <div class="card d-flex flex-row">
+                    <div class="d-flex flex-column p-3 gap-4 flow-steps" aria-label="{{ 'Stappen'|trans }}">
+                        {% for step in form.vars.visible_steps %}
+                            <div {% if step.is_current_step %} aria-current="step"{% endif %}
+                                    class="flow-step{% if step.is_current_step %} fw-bold current{% endif %}"
+                            >
+                                <div class="flow-step-number">{{ loop.index }}</div>
+                                <div class="flow-step-text">{{ (flow_step_translation_prefix|default('') ~ step.name)|trans }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-body">
+                    <h3>{{ (flow_step_translation_prefix|default('') ~ step.name)|trans }}</h3>
+                    {{ form_widget(form[step.name]) }}
+                    {{ form_row(form.navigator) }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -5,6 +5,10 @@
     class="custom-collection__item card {{ item_options.row_class|default('') }}"
     {% if item_autosave_url %}
         data-autosave-url="{{ item_autosave_url }}"
+        {% if item_options.autosave_create_url|default(null) %}data-autosave-create-url="{{ item_options.autosave_create_url }}"{% endif %}
+        {% if item_options.autosave_delete_url|default(null) %}data-autosave-delete-url="{{ item_options.autosave_delete_url }}"{% endif %}
+        {% if item_options.autosave_id_field|default(null) %}data-autosave-id-field="{{ item_options.autosave_id_field }}"{% endif %}
+        {% if item_options.autosave_key_field|default(null) %}data-autosave-key-field="{{ item_options.autosave_key_field }}"{% endif %}
         data-autosave-method="{{ item_autosave_method }}"
         data-autosave-prefix="{{ item_form.vars.full_name }}"
         {% if item_options.id|default(null) is not null %}data-autosave-id="{{ item_options.id }}"{% endif %}

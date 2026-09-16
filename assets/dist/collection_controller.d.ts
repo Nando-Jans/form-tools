@@ -26,10 +26,15 @@ export default class CollectionController extends Controller<HTMLElement> {
     private scrollAnimationFrame;
     private autosaveTimers;
     private autosaveRequests;
+    private removals;
+    private form;
+    private resubmitting;
+    private submitting;
     connect(): void;
     disconnect(): void;
     add(event: Event): void;
     remove(event: Event): void;
+    private removeItem;
     moveUp(event: Event): void;
     moveDown(event: Event): void;
     private prepareItem;
@@ -41,6 +46,10 @@ export default class CollectionController extends Controller<HTMLElement> {
     private detectChange;
     private scheduleAutosave;
     private saveItem;
+    private performSave;
+    private identityInput;
+    private autosaveHeaders;
+    private beforeSubmit;
     private createItemFormData;
     private resolveAutosaveUrl;
     private relativeFieldName;
