@@ -34,7 +34,7 @@ class TableType extends AbstractType
 
         $columns = $options['columns'];
         $rows = [];
-        foreach ($collection as $item) {
+        foreach ($collection ?? [] as $item) {
             $row = [
                 'id' => $item->getId(),
             ];
