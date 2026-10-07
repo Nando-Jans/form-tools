@@ -22,7 +22,7 @@ class TableType extends AbstractType
             'add_button' => false,
             'click_url' => '',
             'tr_class' => '',
-            'template' => '@NandoJans/templates/form/table_type.html.twig'
+            'template' => '@NandoJansFormTools/form/table_type.html.twig'
         ]);
 
         $resolver->setRequired([]);
