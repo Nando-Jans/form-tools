@@ -29,6 +29,7 @@ class CustomCollectionType extends AbstractType
             'editable_order' => true,
             'position_field' => 'position',
             'add_button_label' => 'Add',
+            'add_button_css' => 'btn btn-primary',
             'empty_message' => 'No items have been added yet.',
             'confirm_delete' => 'Are you sure you want to remove this item?',
             'get_child_options' => fn () => [],
@@ -41,6 +42,7 @@ class CustomCollectionType extends AbstractType
         $resolver->setAllowedTypes('editable_order', 'bool');
         $resolver->setAllowedTypes('position_field', ['string', 'null']);
         $resolver->setAllowedTypes('add_button_label', 'string');
+        $resolver->setAllowedTypes('add_button_css', 'string');
         $resolver->setAllowedTypes('empty_message', 'string');
         $resolver->setAllowedTypes('confirm_delete', 'string');
         $resolver->setAllowedTypes('get_child_options', 'callable');
