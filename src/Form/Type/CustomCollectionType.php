@@ -109,6 +109,7 @@ class CustomCollectionType extends AbstractType
              'editable_order',
              'position_field',
              'add_button_label',
+             'add_button_css',
              'empty_message',
              'confirm_delete',
              'polymorphic',
