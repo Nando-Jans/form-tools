@@ -6,6 +6,10 @@ export default class CollectionController extends Controller<HTMLElement> {
     static values: {
         index: NumberConstructor;
         prototype: StringConstructor;
+        prototypeName: {
+            type: StringConstructor;
+            default: string;
+        };
         prototypes: ObjectConstructor;
         positionField: StringConstructor;
         confirmDelete: StringConstructor;
@@ -18,6 +22,7 @@ export default class CollectionController extends Controller<HTMLElement> {
     readonly emptyTarget: HTMLElement;
     indexValue: number;
     prototypeValue: string;
+    prototypeNameValue: string;
     prototypesValue: Record<string, string>;
     positionFieldValue: string;
     confirmDeleteValue: string;
@@ -58,4 +63,5 @@ export default class CollectionController extends Controller<HTMLElement> {
     private itemForEvent;
     private items;
     private updateOrder;
+    private notifyCollectionChange;
 }

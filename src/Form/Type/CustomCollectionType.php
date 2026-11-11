@@ -74,7 +74,7 @@ class CustomCollectionType extends AbstractType
             $data = new $class();
             $discriminator = $this->getDiscriminator($data);
             $classByDiscriminator[$discriminator] = $class;
-            $prototypes[$discriminator] = $builder->create('__name__', $options['entry_type'], [
+            $prototypes[$discriminator] = $builder->create($options['prototype_name'], $options['entry_type'], [
                 ...$options['entry_options'],
                 'data' => $data,
                 'auto_initialize' => false,
@@ -113,6 +113,7 @@ class CustomCollectionType extends AbstractType
              'empty_message',
              'confirm_delete',
              'polymorphic',
+             'prototype_name',
              'autosave_url',
              'autosave_method',
              'autosave_delay',
@@ -140,7 +141,7 @@ class CustomCollectionType extends AbstractType
         foreach ($form->getConfig()->getAttribute('custom_collection_prototypes') as $name => $prototype) {
             $prototypeView = $prototype->createView();
             $this->setCollectionOptions($prototypeView, $getChildOptions);
-            $this->prefixPrototypeView($prototypeView, $view->vars['full_name'] . '[__name__]', $view->vars['id'] . '___name__');
+            $this->prefixPrototypeView($prototypeView, $view->vars['full_name'] . '[' . $options['prototype_name'] . ']', $view->vars['id'] . '_' . $options['prototype_name']);
             $view->vars['prototypes'][$name] = $prototypeView;
         }
     }

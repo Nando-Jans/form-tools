@@ -62,7 +62,13 @@ export default class CollectionController extends Controller {
       this.scrollAnimationFrame = window.requestAnimationFrame(this.autoScroll);
     });
     _defineProperty(this, "detectChange", event => {
+      // Each controller saves its own row, even when the changed field belongs
+      // to a nested collection whose rows do not have their own autosave URL.
       var item = event.target.closest('.custom-collection__item');
+      while (item && item.parentElement !== this.itemsTarget) {
+        var _item$parentElement$c, _item$parentElement;
+        item = (_item$parentElement$c = (_item$parentElement = item.parentElement) === null || _item$parentElement === void 0 ? void 0 : _item$parentElement.closest('.custom-collection__item')) !== null && _item$parentElement$c !== void 0 ? _item$parentElement$c : null;
+      }
       if (item) this.scheduleAutosave(item);
     });
     _defineProperty(this, "beforeSubmit", event => {
@@ -120,11 +126,12 @@ export default class CollectionController extends Controller {
     var prototype = type ? this.prototypesValue[type] : this.prototypeValue;
     if (!prototype) return;
     var wrapper = document.createElement('div');
-    wrapper.innerHTML = prototype.replace(/__name__/g, String(this.indexValue++));
+    wrapper.innerHTML = prototype.replaceAll(this.prototypeNameValue, String(this.indexValue++));
     var item = wrapper.firstElementChild;
     this.itemsTarget.append(item);
     this.prepareItem(item);
     this.updateOrder();
+    this.notifyCollectionChange();
   }
   remove(event) {
     event.preventDefault();
@@ -375,6 +382,14 @@ export default class CollectionController extends Controller {
       }
     });
     this.emptyTarget.classList.toggle('d-none', items.length > 0);
+    if (autosaveChangedPositions) this.notifyCollectionChange();
+  }
+  notifyCollectionChange() {
+    // Structural changes have no native input event. Notify enclosing rows
+    // after updating the DOM so their autosave includes the new collection.
+    this.element.dispatchEvent(new Event('change', {
+      bubbles: true
+    }));
   }
 }
 _defineProperty(CollectionController, "scrollZoneRatio", 0.1);
@@ -383,6 +398,10 @@ _defineProperty(CollectionController, "targets", ['items', 'empty']);
 _defineProperty(CollectionController, "values", {
   index: Number,
   prototype: String,
+  prototypeName: {
+    type: String,
+    default: '__name__'
+  },
   prototypes: Object,
   positionField: String,
   confirmDelete: String,

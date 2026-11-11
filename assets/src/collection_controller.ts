@@ -8,6 +8,7 @@ export default class CollectionController extends Controller<HTMLElement> {
     static values = {
         index: Number,
         prototype: String,
+        prototypeName: { type: String, default: '__name__' },
         prototypes: Object,
         positionField: String,
         confirmDelete: String,
@@ -18,6 +19,7 @@ export default class CollectionController extends Controller<HTMLElement> {
     declare readonly emptyTarget: HTMLElement;
     declare indexValue: number;
     declare prototypeValue: string;
+    declare prototypeNameValue: string;
     declare prototypesValue: Record<string, string>;
     declare positionFieldValue: string;
     declare confirmDeleteValue: string;
@@ -63,11 +65,12 @@ export default class CollectionController extends Controller<HTMLElement> {
         if (!prototype) return;
 
         const wrapper = document.createElement('div');
-        wrapper.innerHTML = prototype.replace(/__name__/g, String(this.indexValue++));
+        wrapper.innerHTML = prototype.replaceAll(this.prototypeNameValue, String(this.indexValue++));
         const item = wrapper.firstElementChild as HTMLElement;
         this.itemsTarget.append(item);
         this.prepareItem(item);
         this.updateOrder();
+        this.notifyCollectionChange();
     }
 
     remove(event: Event): void {
@@ -199,7 +202,12 @@ export default class CollectionController extends Controller<HTMLElement> {
     }
 
     private detectChange = (event: Event): void => {
-        const item = (event.target as HTMLElement).closest<HTMLElement>('.custom-collection__item');
+        // Each controller saves its own row, even when the changed field belongs
+        // to a nested collection whose rows do not have their own autosave URL.
+        let item = (event.target as HTMLElement).closest<HTMLElement>('.custom-collection__item');
+        while (item && item.parentElement !== this.itemsTarget) {
+            item = item.parentElement?.closest<HTMLElement>('.custom-collection__item') ?? null;
+        }
         if (item) this.scheduleAutosave(item);
     };
 
@@ -382,5 +390,12 @@ export default class CollectionController extends Controller<HTMLElement> {
             }
         });
         this.emptyTarget.classList.toggle('d-none', items.length > 0);
+        if (autosaveChangedPositions) this.notifyCollectionChange();
+    }
+
+    private notifyCollectionChange(): void {
+        // Structural changes have no native input event. Notify enclosing rows
+        // after updating the DOM so their autosave includes the new collection.
+        this.element.dispatchEvent(new Event('change', { bubbles: true }));
     }
 }
